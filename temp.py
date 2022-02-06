@@ -13,17 +13,19 @@ def getTempData(station):
 
     URL = 'http://www.bom.gov.au/jsp/ncc/cdio/weatherData/av?p_nccObsCode=36&p_display_type=dataFile&p_startYear=&p_c=&p_stn_num=' + station
 
-    page = requests.get(URL)
+    headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
+
+    page = requests.get(URL, headers=headers)
 
     soup = BeautifulSoup(page.content, 'html.parser')
+    
+    pattern = r"([0-9]*\.[0-9])|>([0-9][0-9][0-9][0-9])<"
 
-    pattern = "([0-9]*\.[0-9])|>([0-9][0-9][0-9][0-9])<"
+    patterna = r"(?s)or precise date unknown.*"
 
-    patterna = "or precise date unknown(?s).*"
+    patternb = r"(?s).*View a year of daily data"
 
-    patternb = "(?s).*View a year of daily data"
-
-    patternc = "[0-9]*\.?[0-9]"
+    patternc = r"[0-9]*\.?[0-9]"
 
     result = re.findall(patterna, str(soup))
 
@@ -110,8 +112,10 @@ myurl = 'ftp://ftp.bom.gov.au/anon2/home/ncc/metadata/lists_by_element/alpha/alp
 myreq = urllib.request.urlopen(myurl)    
 data = myreq.read()
 
+#print(str(data)[0:10000])
+
 pattern = "[ |\n] ([0-9][0-9][0-9][0-9]?[0-9]?[0-9])"
-patternAWS = "(Y)\n|(N)\n| ( )\n"
+patternAWS = r"Y\\r\\n|N\\r\\n| \\r\\n"
 
 result = re.findall(pattern, str(data))
 AWS = re.findall(patternAWS, str(data))
